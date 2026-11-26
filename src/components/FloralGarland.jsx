@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion'
-import floralCorner from '../assets/floral-corner.png'
+import { memo } from 'react'
+import floralCorner from '../assets/floral-corner.webp'
 
 /**
- * Watercolor blush/ivory rose and olive-leaf corner floral cluster with organic breeze sway.
+ * Watercolor blush/ivory rose and olive-leaf corner floral cluster with lightweight CSS breeze sway.
  */
-function FloralGarland({
+const FloralGarland = memo(function FloralGarland({
   flipX = false,
   flipY = false,
   rotateDeg = 0,
@@ -20,11 +20,9 @@ function FloralGarland({
     .join(' ')
 
   return (
-    <motion.div
+    <div
       aria-hidden="true"
-      className={className}
-      animate={{ rotate: [-1.5, 1.5, -1.5] }}
-      transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+      className={`floral-sway ${className}`}
       style={{
         pointerEvents: 'none',
         transformOrigin: flipX ? 'right top' : 'left top',
@@ -34,6 +32,10 @@ function FloralGarland({
       <img
         src={floralCorner}
         alt=""
+        width={400}
+        height={400}
+        loading="lazy"
+        decoding="async"
         style={{
           width: '100%',
           height: '100%',
@@ -43,8 +45,8 @@ function FloralGarland({
           userSelect: 'none',
         }}
       />
-    </motion.div>
+    </div>
   )
-}
+})
 
 export default FloralGarland

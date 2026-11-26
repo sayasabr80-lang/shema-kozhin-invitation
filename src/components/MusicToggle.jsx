@@ -120,77 +120,93 @@ function MusicToggle({
     }
   }, [playerControllerRef, youtubeId, ytStartAt, isAudioFile, ytFailed, audioFailed])
 
-  // Initialize hidden YouTube IFrame Player when a YouTube URL is configured
+  // Defer YouTube IFrame API load until browser idle so initial mobile paint stays unblocked
   useEffect(() => {
     if (!youtubeId) return
     let cancelled = false
+    let idleId = null
+    let timeoutId = null
     ytReadyRef.current = false
 
-    loadYouTubeIframeApi()
-      .then((YT) => {
-        if (cancelled || !ytContainerRef.current) return
-        ytPlayerRef.current = new YT.Player(ytContainerRef.current, {
-          height: '1',
-          width: '1',
-          videoId: youtubeId,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            ...(ytStartAt > 0
-              ? { start: ytStartAt }
-              : { loop: 1, playlist: youtubeId }),
-            modestbranding: 1,
-            playsinline: 1,
-            rel: 0,
-          },
-          events: {
-            onReady: (event) => {
-              if (cancelled) return
-              ytReadyRef.current = true
-              if (isPlayingRef.current) {
-                try {
-                  event.target.unMute()
-                  event.target.setVolume(85)
-                  if (ytStartAt > 0) {
-                    event.target.seekTo(ytStartAt, true)
+    const initPlayer = () => {
+      loadYouTubeIframeApi()
+        .then((YT) => {
+          if (cancelled || !ytContainerRef.current || ytPlayerRef.current) return
+          ytPlayerRef.current = new YT.Player(ytContainerRef.current, {
+            height: '1',
+            width: '1',
+            videoId: youtubeId,
+            playerVars: {
+              autoplay: 0,
+              controls: 0,
+              disablekb: 1,
+              fs: 0,
+              ...(ytStartAt > 0
+                ? { start: ytStartAt }
+                : { loop: 1, playlist: youtubeId }),
+              modestbranding: 1,
+              playsinline: 1,
+              rel: 0,
+            },
+            events: {
+              onReady: (event) => {
+                if (cancelled) return
+                ytReadyRef.current = true
+                if (isPlayingRef.current) {
+                  try {
+                    event.target.unMute()
+                    event.target.setVolume(85)
+                    if (ytStartAt > 0) {
+                      event.target.seekTo(ytStartAt, true)
+                    }
+                    hasStartedRef.current = true
+                    event.target.playVideo()
+                  } catch {
+                    setYtFailed(true)
                   }
-                  hasStartedRef.current = true
-                  event.target.playVideo()
-                } catch {
-                  setYtFailed(true)
                 }
-              }
-            },
-            onStateChange: (event) => {
-              if (cancelled) return
-              if (
-                ytStartAt > 0 &&
-                event.data === YT.PlayerState?.ENDED &&
-                isPlayingRef.current
-              ) {
-                try {
-                  event.target.seekTo(ytStartAt, true)
-                  event.target.playVideo()
-                } catch {
-                  // Ignore
+              },
+              onStateChange: (event) => {
+                if (cancelled) return
+                if (
+                  ytStartAt > 0 &&
+                  event.data === YT.PlayerState?.ENDED &&
+                  isPlayingRef.current
+                ) {
+                  try {
+                    event.target.seekTo(ytStartAt, true)
+                    event.target.playVideo()
+                  } catch {
+                    // Ignore
+                  }
                 }
-              }
+              },
+              onError: () => {
+                if (!cancelled) setYtFailed(true)
+              },
             },
-            onError: () => {
-              if (!cancelled) setYtFailed(true)
-            },
-          },
+          })
         })
-      })
-      .catch(() => {
-        if (!cancelled) setYtFailed(true)
-      })
+        .catch(() => {
+          if (!cancelled) setYtFailed(true)
+        })
+    }
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(initPlayer, { timeout: 900 })
+    } else {
+      timeoutId = setTimeout(initPlayer, 450)
+    }
 
     return () => {
       cancelled = true
       ytReadyRef.current = false
+      if (idleId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId)
+      }
       if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
         try {
           ytPlayerRef.current.destroy()
@@ -356,6 +372,7 @@ function MusicToggle({
           <motion.button
             type="button"
             onClick={handleToggleClick}
+            className="music-toggle-btn"
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4, ease: LUXURY_EASE }}

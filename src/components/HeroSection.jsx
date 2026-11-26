@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import heroBg from '../assets/hero-bg.jpg'
+import heroBg from '../assets/hero-bg.webp'
 import { invitationData } from '../data/invitationData'
 import { formatHeroDate } from '../utils/dateUtils'
 import PaperDivider from './PaperDivider'
@@ -55,21 +55,25 @@ function HeroSection({ isOpening, isOpened }) {
         willChange: 'transform, opacity',
       }}
     >
-      {/* Ken Burns Animated Background & Classical Arch/Swans Image */}
-      <motion.div
-        animate={{ scale: [1, 1.06] }}
-        transition={{ duration: 18, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+      {/* Compositor-only Ken Burns Animated Background & Classical Arch/Swans Image */}
+      <div
+        className="hero-ken-burns"
         style={{
           position: 'absolute',
           inset: 0,
           zIndex: 0,
           transformOrigin: 'center center',
+          animationPlayState: isRevealing ? 'running' : 'paused',
         }}
       >
         <img
           src={heroBg}
           alt=""
           aria-hidden="true"
+          width={720}
+          height={1290}
+          fetchPriority="high"
+          decoding="async"
           style={{
             position: 'absolute',
             inset: 0,
@@ -100,35 +104,38 @@ function HeroSection({ isOpening, isOpened }) {
               loop
               muted
               playsInline
+              preload="metadata"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : null}
         </div>
-      </motion.div>
-
-      {/* Ambient Drifting White Blossom Petals */}
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 4 }}>
-        {PETALS.map((petal) => (
-          <svg
-            key={petal.id}
-            viewBox="0 0 20 20"
-            className="hero-petal"
-            style={{
-              right: petal.right,
-              width: petal.size,
-              height: petal.size,
-              animationDelay: petal.delay,
-              animationDuration: petal.duration,
-              opacity: petal.opacity,
-            }}
-          >
-            <path
-              d="M10,1 C14,4 17,9 14,15 C11,19 5,18 4,13 C3,8 6,3 10,1 Z"
-              fill="var(--petal-ivory)"
-            />
-          </svg>
-        ))}
       </div>
+
+      {/* Ambient Drifting White Blossom Petals (active once revealed) */}
+      {isRevealing ? (
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 4 }}>
+          {PETALS.map((petal) => (
+            <svg
+              key={petal.id}
+              viewBox="0 0 20 20"
+              className="hero-petal"
+              style={{
+                right: petal.right,
+                width: petal.size,
+                height: petal.size,
+                animationDelay: petal.delay,
+                animationDuration: petal.duration,
+                opacity: petal.opacity,
+              }}
+            >
+              <path
+                d="M10,1 C14,4 17,9 14,15 C11,19 5,18 4,13 C3,8 6,3 10,1 Z"
+                fill="var(--petal-ivory)"
+              />
+            </svg>
+          ))}
+        </div>
+      ) : null}
 
       {/* Top Center Overlay Inside Arch — gradual slow dissolve during backlit reveal */}
       <motion.div

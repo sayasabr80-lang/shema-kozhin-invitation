@@ -1,4 +1,4 @@
-import coupleIllustration from '../assets/couple-illustration.png'
+import coupleIllustration from '../assets/couple-illustration.webp'
 
 /**
  * Single source of truth for all customizable wedding invitation content and media paths.

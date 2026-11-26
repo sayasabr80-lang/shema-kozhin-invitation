@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { invitationData } from '../data/invitationData'
 import OrnateButton from './OrnateButton'
 import PaperDivider from './PaperDivider'
@@ -41,12 +42,35 @@ function FrameFloralFlourish({ position = 'top' }) {
 
 /**
  * Section 5: Venue Location, Ornate Gold Map Frame, & Google Maps Link.
+ * Defers mounting the heavy Google Maps iframe until scrolled within 350px.
  */
 function LocationSection() {
   const { locationTitle, venueName, mapEmbedUrl, mapDirectLink, mapButtonText } = invitationData
+  const mapHostRef = useRef(null)
+  const [shouldLoadMap, setShouldLoadMap] = useState(false)
+
+  useEffect(() => {
+    const node = mapHostRef.current
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setShouldLoadMap(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldLoadMap(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '350px 0px' }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <section
+      className="below-fold-section"
       aria-label={locationTitle}
       style={{
         position: 'relative',
@@ -82,9 +106,10 @@ function LocationSection() {
           </p>
         </Reveal>
 
-        {/* Square Ornate Gold-Framed Map Card */}
+        {/* Square Ornate Gold-Framed Map Card (fixed 306px height prevents layout shift) */}
         <Reveal delay={0.12}>
           <div
+            ref={mapHostRef}
             style={{
               position: 'relative',
               width: '100%',
@@ -106,16 +131,18 @@ function LocationSection() {
                 backgroundColor: 'var(--bg-map-placeholder)',
               }}
             >
-              <iframe
-                title={`نەخشەی شوێنی ئاهەنگ - ${venueName}`}
-                src={mapEmbedUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0, display: 'block' }}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-              />
+              {shouldLoadMap ? (
+                <iframe
+                  title={`نەخشەی شوێنی ئاهەنگ - ${venueName}`}
+                  src={mapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, display: 'block' }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              ) : null}
             </div>
             <FrameFloralFlourish position="bottom" />
           </div>

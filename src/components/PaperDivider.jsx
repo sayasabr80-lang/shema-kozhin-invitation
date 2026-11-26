@@ -1,17 +1,15 @@
-import { useId } from 'react'
+import { memo } from 'react'
 
 /**
  * Torn watercolor paper edge SVG transition placed seamlessly between sections.
+ * Uses layered translucent SVG contours (zero runtime Gaussian blur filter passes).
  */
-function PaperDivider({
+const PaperDivider = memo(function PaperDivider({
   topColor = 'transparent',
   bottomColor = 'var(--bg-blush)',
   variant = 0,
   overlap = false,
 }) {
-  const uid = useId().replace(/:/g, '')
-  const filterId = `paper-feather-${uid}`
-
   const paths = [
     'M0,26 C38,18 68,31 108,23 C148,15 182,30 222,22 C264,14 298,29 342,21 C376,15 406,25 430,20 L430,52 L0,52 Z',
     'M0,22 C44,30 82,14 126,24 C168,33 206,16 250,24 C292,31 334,15 376,24 C400,29 416,23 430,26 L430,52 L0,52 Z',
@@ -48,20 +46,11 @@ function PaperDivider({
         preserveAspectRatio="none"
         style={{ width: '100%', height: '100%', display: 'block' }}
       >
-        <defs>
-          <filter id={filterId} x="-5%" y="-20%" width="110%" height="140%">
-            <feGaussianBlur stdDeviation="1.4" />
-          </filter>
-        </defs>
-        <path
-          d={decklePaths[idx]}
-          fill="var(--paper-feather)"
-          filter={`url(#${filterId})`}
-        />
+        <path d={decklePaths[idx]} fill="var(--paper-feather)" opacity="0.72" />
         <path d={paths[idx]} fill={bottomColor} />
       </svg>
     </div>
   )
-}
+})
 
 export default PaperDivider

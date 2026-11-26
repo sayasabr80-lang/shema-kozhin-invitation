@@ -1,19 +1,12 @@
 import { motion } from 'framer-motion'
-import envelopeBg from '../assets/envelope-bg.jpg'
+import envelopeBg from '../assets/envelope-bg.webp'
 import { invitationData } from '../data/invitationData'
 import { LUXURY_EASE } from './Reveal'
 
 /**
- * Section 1: Glowing Envelope Reveal (backlit crossfade).
- *
- * GPU-accelerated timeline on click:
- * 1. 0.0s - 0.4s: Open button smoothly fades out.
- * 2. 0.4s - 1.8s: Warm golden-amber backlit glow expands from behind wax seal along
- *                 top V-edges first, then lower creases to form a glowing golden X light-leak.
- * 3. 1.8s - 3.0s: Wax seal scales up (1 -> 1.2) & fades out; envelope flaps crossfade
- *                 to opacity 0 revealing the Hero section underneath.
- * 4. 2.2s - 3.4s: Golden seam light (mix-blend-mode: screen) lingers briefly then fades out,
- *                 triggering onRevealComplete() to unmount cover & unlock scrolling.
+ * Section 1: GPU-accelerated Glowing Envelope Reveal (backlit crossfade).
+ * Uses layered gradient strokes & CSS radial glows instead of runtime SVG Gaussian blurs
+ * so mobile devices animate smoothly at 60fps.
  */
 function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
   const { sealInitials, openButtonText, mediaPaths } = invitationData
@@ -50,6 +43,10 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
           src={envelopeBg}
           alt=""
           aria-hidden="true"
+          width={720}
+          height={1290}
+          fetchPriority="high"
+          decoding="async"
           style={{
             position: 'absolute',
             inset: 0,
@@ -79,6 +76,7 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
               autoPlay
               muted
               playsInline
+              preload="metadata"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : null}
@@ -113,7 +111,7 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
         />
       </motion.div>
 
-      {/* Stage 2 & 4: Golden-Amber Backlit X Light-Leak (mix-blend-mode: screen, lingers then fades out) */}
+      {/* Stage 2 & 4: Golden-Amber Backlit X Light-Leak (GPU gradient + mix-blend-mode: screen) */}
       <motion.div
         aria-hidden="true"
         className="envelope-seam-glow-layer"
@@ -135,53 +133,44 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
           }
         }}
       >
+        {/* Expanding center backlit golden-amber CSS radial glow (zero filter rasterization) */}
+        <motion.div
+          initial={{ scale: 0.35, opacity: 0 }}
+          animate={
+            isOpening
+              ? { scale: 1.25, opacity: 1 }
+              : { scale: 0.35, opacity: 0 }
+          }
+          transition={
+            isOpening
+              ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
+              : { duration: 0 }
+          }
+          style={{
+            position: 'absolute',
+            top: '51.5%',
+            left: '50%',
+            width: 300,
+            height: 300,
+            marginTop: -150,
+            marginLeft: -150,
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, var(--seam-glow-bloom) 0%, var(--seam-glow-amber-soft) 38%, transparent 72%)',
+            willChange: 'transform, opacity',
+          }}
+        />
+
         <svg
           viewBox="0 0 430 860"
           preserveAspectRatio="none"
           style={{
+            position: 'relative',
             width: '100%',
             height: '100%',
             display: 'block',
           }}
         >
-          <defs>
-            <radialGradient id="sealGoldenBloom" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="var(--seam-glow-core)" stopOpacity="0.98" />
-              <stop offset="45%" stopColor="var(--seam-glow-amber)" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="var(--seam-glow-amber)" stopOpacity="0" />
-            </radialGradient>
-            <filter id="seamBlurHeavy" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="14" />
-            </filter>
-            <filter id="seamBlurMedium" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="5.5" />
-            </filter>
-            <filter id="seamBlurCore" x="-15%" y="-15%" width="130%" height="130%">
-              <feGaussianBlur stdDeviation="2" />
-            </filter>
-          </defs>
-
-          {/* Expanding center backlit golden-amber bloom behind wax seal (0.4s - 1.8s) */}
-          <motion.circle
-            cx="215"
-            cy="444"
-            r="142"
-            fill="url(#sealGoldenBloom)"
-            filter="url(#seamBlurHeavy)"
-            initial={{ scale: 0.35, opacity: 0 }}
-            animate={
-              isOpening
-                ? { scale: 1.25, opacity: 1 }
-                : { scale: 0.35, opacity: 0 }
-            }
-            transition={
-              isOpening
-                ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
-                : { duration: 0 }
-            }
-            style={{ transformOrigin: '215px 444px', willChange: 'transform, opacity' }}
-          />
-
           {/* Top V-shaped diagonal seams: expand outward FIRST and brightest (0.4s - 1.3s) */}
           <motion.g
             initial={{ scale: 0.12, opacity: 0 }}
@@ -201,31 +190,28 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
               d="M 0,32 L 215,432 L 430,32"
               fill="none"
               stroke="var(--seam-glow-amber)"
-              strokeWidth="24"
+              strokeWidth="26"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.78"
-              filter="url(#seamBlurHeavy)"
+              strokeOpacity="0.16"
             />
             <path
               d="M 0,32 L 215,432 L 430,32"
               fill="none"
               stroke="var(--seam-glow-amber)"
-              strokeWidth="10"
+              strokeWidth="12"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.94"
-              filter="url(#seamBlurMedium)"
+              strokeOpacity="0.38"
             />
             <path
               d="M 0,32 L 215,432 L 430,32"
               fill="none"
               stroke="var(--seam-glow-core)"
-              strokeWidth="4.5"
+              strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="1"
-              filter="url(#seamBlurCore)"
+              strokeOpacity="0.95"
             />
           </motion.g>
 
@@ -248,31 +234,28 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
               d="M 0,828 L 215,456 L 430,828"
               fill="none"
               stroke="var(--seam-glow-amber)"
-              strokeWidth="16"
+              strokeWidth="18"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.58"
-              filter="url(#seamBlurHeavy)"
+              strokeOpacity="0.14"
             />
             <path
               d="M 0,828 L 215,456 L 430,828"
               fill="none"
               stroke="var(--seam-glow-amber)"
-              strokeWidth="7"
+              strokeWidth="8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.78"
-              filter="url(#seamBlurMedium)"
+              strokeOpacity="0.32"
             />
             <path
               d="M 0,828 L 215,456 L 430,828"
               fill="none"
               stroke="var(--seam-glow-core)"
-              strokeWidth="3.5"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.88"
-              filter="url(#seamBlurCore)"
+              strokeOpacity="0.82"
             />
           </motion.g>
         </svg>
@@ -298,14 +281,14 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
           animate={
             isOpening
               ? { scale: 1.2, opacity: 0 }
-              : { scale: [1, 1.04, 1], opacity: 1 }
+              : { scale: [1, 1.03, 1], opacity: 1 }
           }
           transition={
             isOpening
               ? { duration: 1.2, delay: 1.8, ease: LUXURY_EASE }
               : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }
           }
-          whileHover={!isOpening ? { scale: 1.06 } : undefined}
+          whileHover={!isOpening ? { scale: 1.05 } : undefined}
           whileTap={!isOpening ? { scale: 0.95 } : undefined}
           style={{
             position: 'relative',
@@ -316,17 +299,29 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
             padding: 0,
             cursor: isOpening ? 'default' : 'pointer',
             WebkitTapHighlightColor: 'transparent',
-            filter: 'drop-shadow(0 16px 24px var(--wax-shadow))',
             willChange: 'transform, opacity',
           }}
         >
+          {/* Lightweight soft shadow disc beneath seal (replaces expensive CSS filter drop-shadow) */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 4,
+              borderRadius: '50%',
+              transform: 'translateY(10px)',
+              background: 'radial-gradient(circle, var(--wax-shadow) 35%, transparent 74%)',
+              pointerEvents: 'none',
+            }}
+          />
+
           {/* Warm backlit halo behind wax seal */}
           <motion.span
             aria-hidden="true"
             animate={
               isOpening
                 ? { opacity: 0.95, scale: 1.25 }
-                : { opacity: [0.28, 0.58, 0.28], scale: [0.96, 1.08, 0.96] }
+                : { opacity: [0.28, 0.52, 0.28], scale: [0.96, 1.06, 0.96] }
             }
             transition={
               isOpening
@@ -335,7 +330,7 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
             }
             style={{
               position: 'absolute',
-              inset: -16,
+              inset: -14,
               borderRadius: '50%',
               background: isOpening
                 ? 'radial-gradient(circle, var(--seam-glow-bloom) 0%, var(--seam-glow-amber-soft) 45%, transparent 72%)'
@@ -345,7 +340,7 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
             }}
           />
 
-          <svg viewBox="0 0 160 160" style={{ width: '100%', height: '100%', display: 'block' }}>
+          <svg viewBox="0 0 160 160" style={{ position: 'relative', width: '100%', height: '100%', display: 'block' }}>
             <defs>
               <radialGradient id="waxBodyGrad" cx="35%" cy="28%" r="72%">
                 <stop offset="0%" stopColor="var(--wax-light)" />
@@ -362,15 +357,6 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
                 <stop offset="42%" stopColor="var(--seal-gold-mid)" />
                 <stop offset="100%" stopColor="var(--seal-gold-dark)" />
               </linearGradient>
-              <filter id="monogramEmboss" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow
-                  dx="1.2"
-                  dy="1.8"
-                  stdDeviation="1.1"
-                  floodColor="var(--wax-emboss-shadow)"
-                  floodOpacity="0.8"
-                />
-              </filter>
             </defs>
 
             {/* Organic melted irregular wax rim */}
@@ -413,24 +399,38 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
               strokeWidth="1.2"
             />
 
-            {/* Embossed Metallic Gold Cursive Initials */}
-            <g filter="url(#monogramEmboss)">
-              <text
-                x="80"
-                y="92"
-                textAnchor="middle"
-                fill="url(#goldMonogramGrad)"
-                style={{
-                  fontFamily: 'var(--font-seal)',
-                  fontStyle: 'italic',
-                  fontWeight: 600,
-                  fontSize: monogramFontSize,
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {trimmedInitials}
-              </text>
-            </g>
+            {/* Embossed Metallic Gold Cursive Initials (lightweight layered emboss without SVG filter) */}
+            <text
+              x="81"
+              y="93.5"
+              textAnchor="middle"
+              fill="var(--wax-emboss-shadow)"
+              opacity="0.7"
+              style={{
+                fontFamily: 'var(--font-seal)',
+                fontStyle: 'italic',
+                fontWeight: 600,
+                fontSize: monogramFontSize,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {trimmedInitials}
+            </text>
+            <text
+              x="80"
+              y="92"
+              textAnchor="middle"
+              fill="url(#goldMonogramGrad)"
+              style={{
+                fontFamily: 'var(--font-seal)',
+                fontStyle: 'italic',
+                fontWeight: 600,
+                fontSize: monogramFontSize,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {trimmedInitials}
+            </text>
           </svg>
         </motion.button>
 
@@ -438,6 +438,7 @@ function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
         <motion.button
           type="button"
           onClick={() => !isOpening && onOpen()}
+          className="open-pill-btn"
           whileHover={!isOpening ? { scale: 1.04 } : undefined}
           whileTap={!isOpening ? { scale: 0.96 } : undefined}
           animate={isOpening ? { y: 8, opacity: 0 } : { y: [0, -2, 0], opacity: 1 }}

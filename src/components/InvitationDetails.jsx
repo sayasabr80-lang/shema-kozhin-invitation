@@ -27,6 +27,7 @@ function InvitationDetails() {
   return (
     <section
       id="invitation-details"
+      className="below-fold-section"
       aria-label="زانیاری بانگهێشتنامە"
       style={{
         position: 'relative',
@@ -205,6 +206,10 @@ function InvitationDetails() {
               <img
                 src={mediaPaths.coupleImage}
                 alt="وێنەی بووک و زاوا بە جلی کوردی"
+                width={460}
+                height={616}
+                loading="lazy"
+                decoding="async"
                 style={{
                   width: '100%',
                   height: 'auto',

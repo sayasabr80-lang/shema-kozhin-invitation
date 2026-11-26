@@ -435,8 +435,69 @@ body.scroll-locked {
   mix-blend-mode: multiply;
 }
 
+/* Lightweight compositor-only floral breeze sway */
+@keyframes floralSway {
+  0%,
+  100% {
+    transform: rotate(-1.3deg);
+  }
+  50% {
+    transform: rotate(1.3deg);
+  }
+}
+
+.floral-sway {
+  animation: floralSway 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Compositor-only Ken Burns background zoom */
+@keyframes kenBurnsHero {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.045);
+  }
+}
+
+.hero-ken-burns {
+  animation: kenBurnsHero 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Skip off-screen layout/paint until scrolled near */
+.below-fold-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 620px;
+}
+
+/* Mobile-specific GPU & paint optimizations */
+@media (max-width: 480px) {
+  /* Limit simultaneous petal count on mobile GPUs */
+  .hero-petal:nth-child(n + 6) {
+    display: none;
+  }
+
+  /* Lighter frosted blur & shadows on mobile */
+  .open-pill-btn,
+  .music-toggle-btn {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+
+  .ornate-btn {
+    box-shadow:
+      inset 0 0 0 3px var(--bg-cream),
+      inset 0 0 0 4px var(--border-btn-inner),
+      0 3px 10px var(--shadow-warm-soft);
+  }
+}
+
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
+  .floral-sway,
+  .hero-ken-burns,
   .hero-petal,
   .wedding-day-pulse,
   .music-pulse-ring,

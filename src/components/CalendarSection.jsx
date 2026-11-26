@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { invitationData } from '../data/invitationData'
 import {
@@ -54,6 +54,51 @@ function CountdownUnit({ value, label }) {
 }
 
 /**
+ * Isolated memoized countdown component so 1s ticks never re-render the calendar grid.
+ */
+const LiveCountdown = memo(function LiveCountdown({ eventDateISO, eventStartedText }) {
+  const [timeLeft, setTimeLeft] = useState(() => getCountdownTimeLeft(eventDateISO))
+
+  useEffect(() => {
+    setTimeLeft(getCountdownTimeLeft(eventDateISO))
+    const timer = setInterval(() => {
+      setTimeLeft(getCountdownTimeLeft(eventDateISO))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [eventDateISO])
+
+  return (
+    <Reveal delay={0.15} style={{ marginTop: 38 }}>
+      {timeLeft.finished ? (
+        <p
+          className="heading-calligraphic"
+          style={{
+            fontSize: 'clamp(1.6rem, 6vw, 1.95rem)',
+            color: 'var(--gold)',
+          }}
+        >
+          {eventStartedText}
+        </p>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}
+        >
+          <CountdownUnit value={timeLeft.days} label="ڕۆژ" />
+          <CountdownUnit value={timeLeft.hours} label="کاتژمێر" />
+          <CountdownUnit value={timeLeft.minutes} label="خولەک" />
+          <CountdownUnit value={timeLeft.seconds} label="چرکە" />
+        </div>
+      )}
+    </Reveal>
+  )
+})
+
+/**
  * Section 4: Dynamic Calendar Card, Save-the-Date (.ics), & Live Countdown driven by eventDateISO.
  */
 function CalendarSection() {
@@ -67,15 +112,6 @@ function CalendarSection() {
   } = invitationData
 
   const monthGrid = useMemo(() => buildMonthGrid(eventDateISO), [eventDateISO])
-  const [timeLeft, setTimeLeft] = useState(() => getCountdownTimeLeft(eventDateISO))
-
-  useEffect(() => {
-    setTimeLeft(getCountdownTimeLeft(eventDateISO))
-    const timer = setInterval(() => {
-      setTimeLeft(getCountdownTimeLeft(eventDateISO))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [eventDateISO])
 
   const handleSaveDate = () => {
     downloadWeddingIcs({ eventDateISO, groomName, brideName, venueName })
@@ -83,6 +119,7 @@ function CalendarSection() {
 
   return (
     <section
+      className="below-fold-section"
       aria-label="ڕۆژژمێر و کاتژمێری ئاهەنگ"
       style={{
         position: 'relative',
@@ -198,34 +235,8 @@ function CalendarSection() {
         <OrnateButton onClick={handleSaveDate}>{saveDateButtonText}</OrnateButton>
       </motion.div>
 
-      {/* Live Countdown Area */}
-      <Reveal delay={0.15} style={{ marginTop: 38 }}>
-        {timeLeft.finished ? (
-          <p
-            className="heading-calligraphic"
-            style={{
-              fontSize: 'clamp(1.6rem, 6vw, 1.95rem)',
-              color: 'var(--gold)',
-            }}
-          >
-            {eventStartedText}
-          </p>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 10,
-              flexWrap: 'wrap',
-            }}
-          >
-            <CountdownUnit value={timeLeft.days} label="ڕۆژ" />
-            <CountdownUnit value={timeLeft.hours} label="کاتژمێر" />
-            <CountdownUnit value={timeLeft.minutes} label="خولەک" />
-            <CountdownUnit value={timeLeft.seconds} label="چرکە" />
-          </div>
-        )}
-      </Reveal>
+      {/* Isolated Live Countdown */}
+      <LiveCountdown eventDateISO={eventDateISO} eventStartedText={eventStartedText} />
 
       {/* Torn-paper divider at the bottom */}
       <PaperDivider topColor="transparent" bottomColor="var(--bg-blush)" variant={2} overlap />
