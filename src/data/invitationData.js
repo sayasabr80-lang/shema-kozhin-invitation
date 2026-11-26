@@ -59,7 +59,7 @@ export const invitationData = {
     envelopeVideo: '',
     heroVideo: '',
     coupleImage: coupleIllustration,
-    backgroundMusic: 'https://youtu.be/YlutQsV0WWs?si=uoQyljvjnPXuy3Ag',
-    backgroundMusicStartSeconds: 0,
+    backgroundMusic: 'https://youtu.be/sL8-vrfTR7k?si=okCviWoM5gCKthEX',
+    backgroundMusicStartSeconds: 10,
   },
 }

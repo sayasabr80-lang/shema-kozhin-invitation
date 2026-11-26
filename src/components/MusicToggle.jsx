@@ -67,6 +67,7 @@ function MusicToggle({
   const ytContainerRef = useRef(null)
   const ytPlayerRef = useRef(null)
   const ytReadyRef = useRef(false)
+  const hasStartedRef = useRef(false)
   const isPlayingRef = useRef(isPlaying)
   const ctxRef = useRef(null)
   const intervalRef = useRef(null)
@@ -81,6 +82,7 @@ function MusicToggle({
   useEffect(() => {
     setYtFailed(false)
     setAudioFailed(false)
+    hasStartedRef.current = false
   }, [audioSrc])
 
   // Expose synchronous play/pause controls for click-gesture handlers (App.jsx)
@@ -92,6 +94,10 @@ function MusicToggle({
           try {
             ytPlayerRef.current.unMute()
             ytPlayerRef.current.setVolume(85)
+            if (ytStartAt > 0 && !hasStartedRef.current) {
+              ytPlayerRef.current.seekTo(ytStartAt, true)
+            }
+            hasStartedRef.current = true
             ytPlayerRef.current.playVideo()
           } catch {
             // Handled by effect/fallback
@@ -112,7 +118,7 @@ function MusicToggle({
         }
       },
     }
-  }, [playerControllerRef, youtubeId, isAudioFile, ytFailed, audioFailed])
+  }, [playerControllerRef, youtubeId, ytStartAt, isAudioFile, ytFailed, audioFailed])
 
   // Initialize hidden YouTube IFrame Player when a YouTube URL is configured
   useEffect(() => {
@@ -150,6 +156,7 @@ function MusicToggle({
                   if (ytStartAt > 0) {
                     event.target.seekTo(ytStartAt, true)
                   }
+                  hasStartedRef.current = true
                   event.target.playVideo()
                 } catch {
                   setYtFailed(true)
