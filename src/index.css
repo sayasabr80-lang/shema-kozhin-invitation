@@ -1,0 +1,426 @@
+:root {
+  /* Core Surfaces */
+  --bg-cream: #FAF4E6;
+  --bg-blush: #F3EAE0;
+  --bg-envelope: #E6E0CE;
+  --bg-champagne: #ECE4D6;
+  --bg-card: #FCF7EC;
+  --bg-map-placeholder: #EAE4D8;
+
+  /* Envelope Golden Seam Glow */
+  --seam-glow-core: #FFE082;
+  --seam-glow-amber: #F5A623;
+  --seam-glow-bloom: rgba(255, 224, 130, 0.85);
+  --seam-glow-amber-soft: rgba(245, 166, 35, 0.48);
+  --seam-top-flap-bright: rgba(255, 234, 172, 0.42);
+  --seam-bottom-shadow-deep: rgba(48, 28, 12, 0.36);
+  --seam-bottom-shadow-soft: rgba(74, 48, 24, 0.18);
+
+  /* Desktop Ambient Backdrop */
+  --backdrop-start: #EFE7D8;
+  --backdrop-mid: #E7DDD0;
+  --backdrop-end: #F2EAE0;
+  --backdrop-glow-ivory: rgba(230, 224, 206, 0.78);
+  --backdrop-glow-blush: rgba(243, 234, 224, 0.88);
+
+  /* Wax Seal & Open Pill */
+  --wax-burgundy: #7E2212;
+  --wax-light: #A63820;
+  --wax-dark: #561308;
+  --wax-inner-center: #651609;
+  --wax-inner-edge: #4F1006;
+  --wax-stroke: #4E1006;
+  --wax-inner-stroke: #4B0E05;
+  --wax-highlight: rgba(255, 218, 200, 0.38);
+  --wax-highlight-soft: rgba(255, 198, 178, 0.18);
+  --wax-rim-glow: rgba(222, 128, 100, 0.28);
+  --wax-halo: rgba(166, 56, 32, 0.35);
+  --wax-shadow: rgba(42, 10, 4, 0.48);
+  --wax-emboss-shadow: #360902;
+  --seal-gold-light: #F5E4B8;
+  --seal-gold-mid: #CFA75C;
+  --seal-gold-dark: #9A7532;
+  --open-pill-bg: rgba(216, 209, 190, 0.7);
+  --open-pill-border: rgba(255, 252, 245, 0.35);
+  --open-pill-text: #635746;
+  --open-pill-shadow: rgba(96, 82, 58, 0.14);
+
+  /* Golds, Bronzes & Text */
+  --gold: #B4924A;
+  --gold-deep: #9E7B3B;
+  --gold-warm: #A68446;
+  --gold-border: #C9AE74;
+  --gold-solid: #B89648;
+  --gold-scroll: #C4A564;
+  --gold-fill-soft: #E8D8B2;
+  --gold-ring-light: #D6B976;
+  --gold-ring-dark: #947435;
+  --gold-hero-title: #8D724B;
+  --bronze: #7A5E3B;
+  --brown-body: #4A3B2C;
+  --brown-deep: #3F3226;
+  --brown-header: #46382B;
+  --brown-hero-date: #5B4932;
+  --brown-hero-scroll: #7D674D;
+  --brown-muted: #7C6A58;
+  --brown-label: #6A5A4A;
+  --brown-footer: #6C5D4D;
+  --brown-dash: #9B8D7B;
+  --charcoal-quran: #2B231C;
+  --white: #FFFFFF;
+
+  /* Button & Interactive Overlays */
+  --btn-bg-top: #FDF9F1;
+  --btn-bg-bottom: #F7EFE0;
+  --btn-sheen: rgba(232, 206, 148, 0.42);
+  --music-bg: rgba(247, 240, 226, 0.68);
+  --music-border: rgba(201, 174, 116, 0.72);
+  --music-icon: #8C7351;
+  --music-pulse: rgba(180, 146, 74, 0.65);
+
+  /* Shadows, Borders & Overlays */
+  --shadow-frame-lg: rgba(74, 59, 44, 0.18);
+  --shadow-frame-sm: rgba(158, 123, 59, 0.1);
+  --border-frame: rgba(201, 174, 116, 0.25);
+  --border-card: rgba(201, 174, 116, 0.16);
+  --border-weekday: rgba(201, 174, 116, 0.35);
+  --border-countdown: rgba(201, 174, 116, 0.45);
+  --border-btn-inner: rgba(201, 174, 116, 0.45);
+  --border-btn-inner-hover: rgba(180, 146, 74, 0.72);
+  --shadow-warm-soft: rgba(122, 94, 59, 0.08);
+  --shadow-warm-card: rgba(122, 94, 59, 0.07);
+  --shadow-warm-md: rgba(122, 94, 59, 0.1);
+  --shadow-warm-hover: rgba(158, 123, 59, 0.16);
+  --shadow-music: rgba(74, 59, 44, 0.12);
+  --pulse-gold-start: rgba(184, 150, 72, 0.55);
+  --pulse-gold-mid: rgba(158, 123, 59, 0.28);
+  --pulse-gold-end: rgba(158, 123, 59, 0.22);
+  --paper-feather: rgba(166, 132, 70, 0.14);
+  --shimmer-ivory: rgba(255, 250, 232, 0.75);
+  --petal-ivory: #FFFDF9;
+  --hero-text-halo: rgba(255, 251, 242, 0.88);
+  --grain-dark: rgba(122, 94, 59, 0.035);
+  --grain-light: rgba(255, 255, 255, 0.25);
+
+  /* Typography */
+  --font-heading: 'Amiri', 'Noto Naskh Arabic', serif;
+  --font-body: 'Noto Naskh Arabic', 'Amiri', sans-serif;
+  --font-seal: 'Playfair Display', Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+  font-family: var(--font-body);
+  color: var(--brown-body);
+  background-color: var(--bg-cream);
+  overflow-x: hidden;
+}
+
+body.scroll-locked {
+  overflow: hidden;
+  height: 100dvh;
+  touch-action: none;
+}
+
+/* Desktop ambient frame backdrop */
+.app-backdrop {
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--bg-cream);
+}
+
+.invitation-frame {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background-color: var(--bg-cream);
+  overflow-x: clip;
+}
+
+@media (min-width: 481px) {
+  .app-backdrop {
+    background:
+      radial-gradient(circle at 20% 20%, var(--backdrop-glow-ivory) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, var(--backdrop-glow-blush) 0%, transparent 55%),
+      linear-gradient(160deg, var(--backdrop-start) 0%, var(--backdrop-mid) 50%, var(--backdrop-end) 100%);
+    display: flex;
+    justify-content: center;
+  }
+
+  .invitation-frame {
+    max-width: 430px;
+    box-shadow:
+      0 24px 70px var(--shadow-frame-lg),
+      0 6px 24px var(--shadow-frame-sm),
+      0 0 0 1px var(--border-frame);
+  }
+}
+
+/* Typography utilities */
+.heading-calligraphic {
+  font-family: var(--font-heading);
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.quran-text {
+  font-family: var(--font-heading);
+  color: var(--charcoal-quran);
+  line-height: 1.95;
+  margin: 0;
+}
+
+/* Ornate Gold Pill Button */
+.ornate-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 192px;
+  padding: 10px 34px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, var(--btn-bg-top) 0%, var(--btn-bg-bottom) 100%);
+  border: 1.35px solid var(--gold-border);
+  box-shadow:
+    inset 0 0 0 3px var(--bg-cream),
+    inset 0 0 0 4px var(--border-btn-inner),
+    0 5px 16px var(--shadow-warm-soft);
+  color: var(--gold-deep);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: visible;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ornate-btn:hover {
+  border-color: var(--gold);
+  color: var(--bronze);
+  box-shadow:
+    inset 0 0 0 3px var(--bg-cream),
+    inset 0 0 0 4px var(--border-btn-inner-hover),
+    0 10px 24px var(--shadow-warm-hover);
+}
+
+.ornate-btn-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ornate-btn-sheen::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -120%;
+  width: 65%;
+  height: 140%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 30%,
+    var(--btn-sheen) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  transition: left 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ornate-btn:hover .ornate-btn-sheen::after {
+  left: 145%;
+}
+
+/* Floating white blossom petals in Hero */
+@keyframes petalFall {
+  0% {
+    transform: translate3d(0, -12%, 0) rotate(0deg) scale(0.85);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.76;
+  }
+  50% {
+    transform: translate3d(-18px, 42vh, 0) rotate(125deg) scale(1);
+    opacity: 0.64;
+  }
+  85% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: translate3d(14px, 86vh, 0) rotate(245deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.hero-petal {
+  position: absolute;
+  top: -6%;
+  pointer-events: none;
+  z-index: 4;
+  animation-name: petalFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* Wedding Date Golden Pulse Ring */
+@keyframes datePulseRing {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-gold-start), 0 4px 12px var(--pulse-gold-mid);
+  }
+  70% {
+    box-shadow: 0 0 0 11px transparent, 0 4px 14px var(--pulse-gold-end);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent, 0 4px 12px var(--pulse-gold-mid);
+  }
+}
+
+.wedding-day-pulse {
+  animation: datePulseRing 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Floating Music Button Wave Pulse */
+@keyframes musicWavePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+.music-pulse-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--music-pulse);
+  pointer-events: none;
+  animation: musicWavePulse 2.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Footer Rings Metallic Shimmer */
+@keyframes ringsShimmer {
+  0% {
+    transform: translateX(-120%) skewX(-22deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.7;
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(180%) skewX(-22deg);
+    opacity: 0;
+  }
+}
+
+.rings-shimmer-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--shimmer-ivory),
+    transparent
+  );
+  pointer-events: none;
+  animation: ringsShimmer 4.5s ease-in-out infinite;
+}
+
+/* Paper grain texture overlay */
+.paper-grain {
+  background-image:
+    radial-gradient(var(--grain-dark) 1px, transparent 0),
+    radial-gradient(var(--grain-light) 1px, transparent 0);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+
+/* Sealed Envelope Cover & Golden Seam Glow */
+.envelope-cover-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  margin: 0 auto;
+  max-width: 430px;
+  width: 100%;
+  height: 100dvh;
+  background-color: var(--bg-envelope);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.envelope-top-flap-bright {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  clip-path: polygon(0 3%, 100% 3%, 50% 48%);
+  background: radial-gradient(
+    ellipse at 50% 94%,
+    var(--seam-glow-bloom) 0%,
+    var(--seam-top-flap-bright) 42%,
+    transparent 82%
+  );
+  mix-blend-mode: screen;
+}
+
+.envelope-bottom-flap-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  clip-path: polygon(0 96%, 50% 52%, 100% 96%);
+  background: linear-gradient(
+    180deg,
+    var(--seam-bottom-shadow-deep) 0%,
+    var(--seam-bottom-shadow-soft) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: multiply;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .hero-petal,
+  .wedding-day-pulse,
+  .music-pulse-ring,
+  .rings-shimmer-bar {
+    animation: none;
+  }
+}

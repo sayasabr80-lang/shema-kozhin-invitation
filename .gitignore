@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+dist-ssr/
+
+# Local / OS / Logs
+*.local
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+
+# Stale / unrelated folders
+package-lock.json
+INIVITATION/
