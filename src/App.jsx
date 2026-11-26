@@ -47,9 +47,18 @@ function App() {
     setIsMusicPlaying(true)
     // Start music synchronously inside the click gesture for mobile/Safari autoplay support
     playerControllerRef.current?.play()
+    // Safety fallback unlock if animation callback is interrupted
     openTimerRef.current = setTimeout(() => {
       setIsOpened(true)
-    }, 950)
+    }, 3550)
+  }
+
+  const handleRevealComplete = () => {
+    if (openTimerRef.current) {
+      clearTimeout(openTimerRef.current)
+      openTimerRef.current = null
+    }
+    setIsOpened(true)
   }
 
   return (
@@ -58,7 +67,11 @@ function App() {
         {/* Section 1: Sealed Envelope Lock Screen */}
         <AnimatePresence>
           {!isOpened ? (
-            <EnvelopeCover isOpening={isOpening} onOpen={handleOpenEnvelope} />
+            <EnvelopeCover
+              isOpening={isOpening}
+              onOpen={handleOpenEnvelope}
+              onRevealComplete={handleRevealComplete}
+            />
           ) : null}
         </AnimatePresence>
 

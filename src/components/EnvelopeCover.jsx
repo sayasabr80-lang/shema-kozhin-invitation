@@ -4,16 +4,18 @@ import { invitationData } from '../data/invitationData'
 import { LUXURY_EASE } from './Reveal'
 
 /**
- * Section 1: Sealed 4-flap X-folded embossed envelope with golden seam illumination
- * and seamless crossfade reveal into the Hero section.
+ * Section 1: Glowing Envelope Reveal (backlit crossfade).
  *
- * Timeline on click:
- * 1. 0.0s - 0.3s: Button fades out & background music starts.
- * 2. 0.3s - 1.8s: Golden light blooms behind wax seal & glows along diagonal seams;
- *                 top triangle brightens slightly while bottom triangle darkens.
- * 3. 1.8s - 3.0s: Entire envelope crossfades from opacity 1 -> 0 (0.95s App timer + 0.85s exit delay + 1.2s exit).
+ * GPU-accelerated timeline on click:
+ * 1. 0.0s - 0.4s: Open button smoothly fades out.
+ * 2. 0.4s - 1.8s: Warm golden-amber backlit glow expands from behind wax seal along
+ *                 top V-edges first, then lower creases to form a glowing golden X light-leak.
+ * 3. 1.8s - 3.0s: Wax seal scales up (1 -> 1.2) & fades out; envelope flaps crossfade
+ *                 to opacity 0 revealing the Hero section underneath.
+ * 4. 2.2s - 3.4s: Golden seam light (mix-blend-mode: screen) lingers briefly then fades out,
+ *                 triggering onRevealComplete() to unmount cover & unlock scrolling.
  */
-function EnvelopeCover({ isOpening, onOpen }) {
+function EnvelopeCover({ isOpening, onOpen, onRevealComplete }) {
   const { sealInitials, openButtonText, mediaPaths } = invitationData
   const trimmedInitials = String(sealInitials || 'Sh,K').trim()
   const monogramFontSize =
@@ -27,173 +29,256 @@ function EnvelopeCover({ isOpening, onOpen }) {
       initial={{ opacity: 1 }}
       exit={{
         opacity: 0,
-        transition: { delay: 0.85, duration: 1.2, ease: LUXURY_EASE },
+        transition: { duration: 0.25, ease: LUXURY_EASE },
       }}
       style={{
         pointerEvents: isOpening ? 'none' : 'auto',
       }}
     >
-      {/* 4-Flap X-Folded Embossed Ivory Envelope Base */}
-      <img
-        src={envelopeBg}
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: 'center center',
-          zIndex: 0,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      />
+      {/* Stage 3 (1.8s - 3.0s): Entire Envelope Flaps Layer crossfades to opacity 0 */}
+      <motion.div
+        className="envelope-flaps-layer"
+        initial={{ opacity: 1 }}
+        animate={isOpening ? { opacity: 0 } : { opacity: 1 }}
+        transition={
+          isOpening
+            ? { duration: 1.2, delay: 1.8, ease: LUXURY_EASE }
+            : { duration: 0 }
+        }
+      >
+        <img
+          src={envelopeBg}
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center center',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        />
 
-      {/* MEDIA SLOT: Place an envelope opening video via invitationData.mediaPaths.envelopeVideo */}
-      <div
-        data-media-slot="envelope-video"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          pointerEvents: 'none',
-          overflow: 'hidden',
+        {/* MEDIA SLOT: Place an envelope opening video via invitationData.mediaPaths.envelopeVideo */}
+        <div
+          data-media-slot="envelope-video"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          {mediaPaths.envelopeVideo ? (
+            <video
+              src={mediaPaths.envelopeVideo}
+              autoPlay
+              muted
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : null}
+        </div>
+
+        {/* Top Triangular Flap Warm Backlit Brightening (0.4s - 1.8s) */}
+        <motion.div
+          aria-hidden="true"
+          className="envelope-top-flap-bright"
+          initial={{ opacity: 0 }}
+          animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
+          transition={
+            isOpening
+              ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
+              : { duration: 0 }
+          }
+          style={{ willChange: 'opacity' }}
+        />
+
+        {/* Bottom Triangular Flap Deep Warm Shadow Contrast (0.4s - 1.8s) */}
+        <motion.div
+          aria-hidden="true"
+          className="envelope-bottom-flap-shadow"
+          initial={{ opacity: 0 }}
+          animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
+          transition={
+            isOpening
+              ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
+              : { duration: 0 }
+          }
+          style={{ willChange: 'opacity' }}
+        />
+      </motion.div>
+
+      {/* Stage 2 & 4: Golden-Amber Backlit X Light-Leak (mix-blend-mode: screen, lingers then fades out) */}
+      <motion.div
+        aria-hidden="true"
+        className="envelope-seam-glow-layer"
+        initial={{ opacity: 0 }}
+        animate={isOpening ? { opacity: [0, 1, 1, 0] } : { opacity: 0 }}
+        transition={
+          isOpening
+            ? {
+                duration: 3.0,
+                delay: 0.4,
+                times: [0, 0.46, 0.62, 1],
+                ease: LUXURY_EASE,
+              }
+            : { duration: 0 }
+        }
+        onAnimationComplete={() => {
+          if (isOpening && onRevealComplete) {
+            onRevealComplete()
+          }
         }}
       >
-        {mediaPaths.envelopeVideo ? (
-          <video
-            src={mediaPaths.envelopeVideo}
-            autoPlay
-            muted
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        <svg
+          viewBox="0 0 430 860"
+          preserveAspectRatio="none"
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+          }}
+        >
+          <defs>
+            <radialGradient id="sealGoldenBloom" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--seam-glow-core)" stopOpacity="0.98" />
+              <stop offset="45%" stopColor="var(--seam-glow-amber)" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="var(--seam-glow-amber)" stopOpacity="0" />
+            </radialGradient>
+            <filter id="seamBlurHeavy" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="14" />
+            </filter>
+            <filter id="seamBlurMedium" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5.5" />
+            </filter>
+            <filter id="seamBlurCore" x="-15%" y="-15%" width="130%" height="130%">
+              <feGaussianBlur stdDeviation="2" />
+            </filter>
+          </defs>
+
+          {/* Expanding center backlit golden-amber bloom behind wax seal (0.4s - 1.8s) */}
+          <motion.circle
+            cx="215"
+            cy="444"
+            r="142"
+            fill="url(#sealGoldenBloom)"
+            filter="url(#seamBlurHeavy)"
+            initial={{ scale: 0.35, opacity: 0 }}
+            animate={
+              isOpening
+                ? { scale: 1.25, opacity: 1 }
+                : { scale: 0.35, opacity: 0 }
+            }
+            transition={
+              isOpening
+                ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
+                : { duration: 0 }
+            }
+            style={{ transformOrigin: '215px 444px', willChange: 'transform, opacity' }}
           />
-        ) : null}
-      </div>
 
-      {/* Stage 2: Brighten Top Triangular Flap (0.3s - 1.8s) */}
-      <motion.div
-        aria-hidden="true"
-        className="envelope-top-flap-bright"
-        initial={{ opacity: 0 }}
-        animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.5, delay: 0.3, ease: LUXURY_EASE }}
-      />
+          {/* Top V-shaped diagonal seams: expand outward FIRST and brightest (0.4s - 1.3s) */}
+          <motion.g
+            initial={{ scale: 0.12, opacity: 0 }}
+            animate={
+              isOpening
+                ? { scale: 1, opacity: 1 }
+                : { scale: 0.12, opacity: 0 }
+            }
+            transition={
+              isOpening
+                ? { duration: 0.95, delay: 0.4, ease: LUXURY_EASE }
+                : { duration: 0 }
+            }
+            style={{ transformOrigin: '215px 432px', willChange: 'transform, opacity' }}
+          >
+            <path
+              d="M 0,32 L 215,432 L 430,32"
+              fill="none"
+              stroke="var(--seam-glow-amber)"
+              strokeWidth="24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.78"
+              filter="url(#seamBlurHeavy)"
+            />
+            <path
+              d="M 0,32 L 215,432 L 430,32"
+              fill="none"
+              stroke="var(--seam-glow-amber)"
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.94"
+              filter="url(#seamBlurMedium)"
+            />
+            <path
+              d="M 0,32 L 215,432 L 430,32"
+              fill="none"
+              stroke="var(--seam-glow-core)"
+              strokeWidth="4.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="1"
+              filter="url(#seamBlurCore)"
+            />
+          </motion.g>
 
-      {/* Stage 2: Darken Bottom Triangular Flap with Deeper Warm Shadow (0.3s - 1.8s) */}
-      <motion.div
-        aria-hidden="true"
-        className="envelope-bottom-flap-shadow"
-        initial={{ opacity: 0 }}
-        animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.5, delay: 0.3, ease: LUXURY_EASE }}
-      />
+          {/* Lower diagonal creases: expand outward SECOND to form the glowing golden X (0.8s - 1.8s) */}
+          <motion.g
+            initial={{ scale: 0.12, opacity: 0 }}
+            animate={
+              isOpening
+                ? { scale: 1, opacity: 0.85 }
+                : { scale: 0.12, opacity: 0 }
+            }
+            transition={
+              isOpening
+                ? { duration: 1.0, delay: 0.8, ease: LUXURY_EASE }
+                : { duration: 0 }
+            }
+            style={{ transformOrigin: '215px 456px', willChange: 'transform, opacity' }}
+          >
+            <path
+              d="M 0,828 L 215,456 L 430,828"
+              fill="none"
+              stroke="var(--seam-glow-amber)"
+              strokeWidth="16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.58"
+              filter="url(#seamBlurHeavy)"
+            />
+            <path
+              d="M 0,828 L 215,456 L 430,828"
+              fill="none"
+              stroke="var(--seam-glow-amber)"
+              strokeWidth="7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.78"
+              filter="url(#seamBlurMedium)"
+            />
+            <path
+              d="M 0,828 L 215,456 L 430,828"
+              fill="none"
+              stroke="var(--seam-glow-core)"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.88"
+              filter="url(#seamBlurCore)"
+            />
+          </motion.g>
+        </svg>
+      </motion.div>
 
-      {/* Stage 2: Golden Light Seam Glow & Center Bloom behind Wax Seal (0.3s - 1.8s) */}
-      <motion.svg
-        aria-hidden="true"
-        viewBox="0 0 430 860"
-        preserveAspectRatio="none"
-        initial={{ opacity: 0 }}
-        animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.5, delay: 0.3, ease: LUXURY_EASE }}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 3,
-          pointerEvents: 'none',
-        }}
-      >
-        <defs>
-          <radialGradient id="sealGoldenBloom" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--seam-glow-core)" stopOpacity="0.95" />
-            <stop offset="45%" stopColor="var(--seam-glow-amber)" stopOpacity="0.62" />
-            <stop offset="100%" stopColor="var(--seam-glow-amber)" stopOpacity="0" />
-          </radialGradient>
-          <filter id="seamBlurHeavy" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="14" />
-          </filter>
-          <filter id="seamBlurMedium" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="5.5" />
-          </filter>
-          <filter id="seamBlurCore" x="-15%" y="-15%" width="130%" height="130%">
-            <feGaussianBlur stdDeviation="2" />
-          </filter>
-        </defs>
-
-        {/* Warm golden bloom behind centered wax seal */}
-        <motion.circle
-          cx="215"
-          cy="444"
-          r="138"
-          fill="url(#sealGoldenBloom)"
-          filter="url(#seamBlurHeavy)"
-          initial={{ scale: 0.65 }}
-          animate={isOpening ? { scale: 1.15 } : { scale: 0.65 }}
-          transition={{ duration: 1.5, delay: 0.3, ease: LUXURY_EASE }}
-          style={{ transformOrigin: '215px 444px' }}
-        />
-
-        {/* Lower diagonal edges: softer warm golden light */}
-        <path
-          d="M 0,828 L 215,456 L 430,828"
-          fill="none"
-          stroke="var(--seam-glow-amber)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.34"
-          filter="url(#seamBlurMedium)"
-        />
-        <path
-          d="M 0,828 L 215,456 L 430,828"
-          fill="none"
-          stroke="var(--seam-glow-core)"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.45"
-          filter="url(#seamBlurCore)"
-        />
-
-        {/* Top V-shaped diagonal seams: intense warm golden light */}
-        <path
-          d="M 0,32 L 215,432 L 430,32"
-          fill="none"
-          stroke="var(--seam-glow-amber)"
-          strokeWidth="22"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.72"
-          filter="url(#seamBlurHeavy)"
-        />
-        <path
-          d="M 0,32 L 215,432 L 430,32"
-          fill="none"
-          stroke="var(--seam-glow-amber)"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.9"
-          filter="url(#seamBlurMedium)"
-        />
-        <path
-          d="M 0,32 L 215,432 L 430,32"
-          fill="none"
-          stroke="var(--seam-glow-core)"
-          strokeWidth="4.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.98"
-          filter="url(#seamBlurCore)"
-        />
-      </motion.svg>
-
-      {/* Centered Sh,K Wax Seal (kept in place) & Open Pill Button (fades 0.0s - 0.3s) */}
+      {/* Centered Sh,K Wax Seal (scales 1 -> 1.2 & fades 1.8s - 3.0s) & Open Button (fades 0.0s - 0.4s) */}
       <div
         style={{
           position: 'relative',
@@ -212,12 +297,12 @@ function EnvelopeCover({ isOpening, onOpen }) {
           aria-label="کردنەوەی بانگهێشتنامە"
           animate={
             isOpening
-              ? { scale: 1 }
-              : { scale: [1, 1.04, 1] }
+              ? { scale: 1.2, opacity: 0 }
+              : { scale: [1, 1.04, 1], opacity: 1 }
           }
           transition={
             isOpening
-              ? { duration: 0.3, ease: LUXURY_EASE }
+              ? { duration: 1.2, delay: 1.8, ease: LUXURY_EASE }
               : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }
           }
           whileHover={!isOpening ? { scale: 1.06 } : undefined}
@@ -232,19 +317,20 @@ function EnvelopeCover({ isOpening, onOpen }) {
             cursor: isOpening ? 'default' : 'pointer',
             WebkitTapHighlightColor: 'transparent',
             filter: 'drop-shadow(0 16px 24px var(--wax-shadow))',
+            willChange: 'transform, opacity',
           }}
         >
-          {/* Ambient wax halo shifting into warm golden glow behind seal */}
+          {/* Warm backlit halo behind wax seal */}
           <motion.span
             aria-hidden="true"
             animate={
               isOpening
-                ? { opacity: 0.95, scale: 1.18 }
+                ? { opacity: 0.95, scale: 1.25 }
                 : { opacity: [0.28, 0.58, 0.28], scale: [0.96, 1.08, 0.96] }
             }
             transition={
               isOpening
-                ? { duration: 1.5, delay: 0.3, ease: LUXURY_EASE }
+                ? { duration: 1.4, delay: 0.4, ease: LUXURY_EASE }
                 : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }
             }
             style={{
@@ -255,6 +341,7 @@ function EnvelopeCover({ isOpening, onOpen }) {
                 ? 'radial-gradient(circle, var(--seam-glow-bloom) 0%, var(--seam-glow-amber-soft) 45%, transparent 72%)'
                 : 'radial-gradient(circle, var(--wax-halo) 0%, transparent 70%)',
               pointerEvents: 'none',
+              willChange: 'transform, opacity',
             }}
           />
 
@@ -347,7 +434,7 @@ function EnvelopeCover({ isOpening, onOpen }) {
           </svg>
         </motion.button>
 
-        {/* Stage 1: Open Pill Button (fades out 0.0s - 0.3s) */}
+        {/* Step 1: Open Pill Button fades out first (0.0s - 0.4s) */}
         <motion.button
           type="button"
           onClick={() => !isOpening && onOpen()}
@@ -356,7 +443,7 @@ function EnvelopeCover({ isOpening, onOpen }) {
           animate={isOpening ? { y: 8, opacity: 0 } : { y: [0, -2, 0], opacity: 1 }}
           transition={
             isOpening
-              ? { duration: 0.3, ease: LUXURY_EASE }
+              ? { duration: 0.4, ease: LUXURY_EASE }
               : {
                   y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
                   scale: { duration: 0.25, ease: LUXURY_EASE },
@@ -378,6 +465,7 @@ function EnvelopeCover({ isOpening, onOpen }) {
             fontWeight: 600,
             cursor: isOpening ? 'default' : 'pointer',
             WebkitTapHighlightColor: 'transparent',
+            willChange: 'transform, opacity',
           }}
         >
           {openButtonText}

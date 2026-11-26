@@ -42,9 +42,9 @@ function HeroSection({ isOpening, isOpened }) {
   return (
     <motion.section
       aria-label="پێشوازی ئاهەنگ"
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={isRevealing ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0 }}
-      transition={{ duration: 0.7, delay: isOpened ? 0 : 0.25, ease: LUXURY_EASE }}
+      initial={{ scale: 0.96, opacity: 0 }}
+      animate={isRevealing ? { scale: 1, opacity: 1 } : { scale: 0.96, opacity: 0 }}
+      transition={{ duration: 1.2, delay: isOpened ? 0 : 1.5, ease: LUXURY_EASE }}
       style={{
         position: 'relative',
         width: '100%',
@@ -52,6 +52,7 @@ function HeroSection({ isOpening, isOpened }) {
         minHeight: 700,
         overflow: 'hidden',
         backgroundColor: 'var(--bg-blush)',
+        willChange: 'transform, opacity',
       }}
     >
       {/* Ken Burns Animated Background & Classical Arch/Swans Image */}
