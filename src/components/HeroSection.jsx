@@ -44,7 +44,7 @@ function HeroSection({ isOpening, isOpened }) {
       aria-label="پێشوازی ئاهەنگ"
       initial={{ scale: 0.96, opacity: 0 }}
       animate={isRevealing ? { scale: 1, opacity: 1 } : { scale: 0.96, opacity: 0 }}
-      transition={{ duration: 1.2, delay: isOpened ? 0 : 1.5, ease: LUXURY_EASE }}
+      transition={{ duration: 1.4, delay: 1.55, ease: LUXURY_EASE }}
       style={{
         position: 'relative',
         width: '100%',
@@ -130,11 +130,11 @@ function HeroSection({ isOpening, isOpened }) {
         ))}
       </div>
 
-      {/* Top Center Overlay Inside Arch */}
+      {/* Top Center Overlay Inside Arch — gradual slow dissolve during backlit reveal */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={isOpened ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
-        transition={{ duration: 0.85, delay: 0.1, ease: LUXURY_EASE }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={isRevealing ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
+        transition={{ duration: 1.3, delay: 1.9, ease: LUXURY_EASE }}
         style={{
           position: 'absolute',
           top: '14%',
@@ -143,6 +143,7 @@ function HeroSection({ isOpening, isOpened }) {
           zIndex: 5,
           textAlign: 'center',
           paddingInline: 24,
+          willChange: 'transform, opacity',
         }}
       >
         <h1
@@ -170,7 +171,7 @@ function HeroSection({ isOpening, isOpened }) {
         </p>
       </motion.div>
 
-      {/* Center Staggered Couple Names */}
+      {/* Center Staggered Couple Names — slow, soft organic emergence */}
       <div
         style={{
           position: 'absolute',
@@ -188,9 +189,9 @@ function HeroSection({ isOpening, isOpened }) {
         }}
       >
         <motion.div
-          initial={{ opacity: 0, x: 26 }}
-          animate={isOpened ? { opacity: 1, x: 0 } : { opacity: 0, x: 26 }}
-          transition={{ duration: 0.9, delay: 0.25, ease: LUXURY_EASE }}
+          initial={{ opacity: 0, x: 14 }}
+          animate={isRevealing ? { opacity: 1, x: 0 } : { opacity: 0, x: 14 }}
+          transition={{ duration: 1.3, delay: 2.15, ease: LUXURY_EASE }}
           style={{
             alignSelf: 'flex-start',
             fontFamily: 'var(--font-heading)',
@@ -199,15 +200,16 @@ function HeroSection({ isOpening, isOpened }) {
             color: 'var(--bronze)',
             lineHeight: 1.05,
             textShadow: '0 2px 16px var(--hero-text-halo)',
+            willChange: 'transform, opacity',
           }}
         >
           {groomName}
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.88 }}
-          animate={isOpened ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.88 }}
-          transition={{ duration: 0.8, delay: 0.45, ease: LUXURY_EASE }}
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={isRevealing ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }}
+          transition={{ duration: 1.15, delay: 2.35, ease: LUXURY_EASE }}
           style={{
             alignSelf: 'center',
             fontFamily: 'var(--font-heading)',
@@ -217,15 +219,16 @@ function HeroSection({ isOpening, isOpened }) {
             lineHeight: 1,
             marginBlock: 2,
             textShadow: '0 2px 12px var(--hero-text-halo)',
+            willChange: 'transform, opacity',
           }}
         >
           و
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: -26 }}
-          animate={isOpened ? { opacity: 1, x: 0 } : { opacity: 0, x: -26 }}
-          transition={{ duration: 0.9, delay: 0.6, ease: LUXURY_EASE }}
+          initial={{ opacity: 0, x: -14 }}
+          animate={isRevealing ? { opacity: 1, x: 0 } : { opacity: 0, x: -14 }}
+          transition={{ duration: 1.3, delay: 2.55, ease: LUXURY_EASE }}
           style={{
             alignSelf: 'flex-end',
             fontFamily: 'var(--font-heading)',
@@ -234,6 +237,7 @@ function HeroSection({ isOpening, isOpened }) {
             color: 'var(--bronze)',
             lineHeight: 1.05,
             textShadow: '0 2px 16px var(--hero-text-halo)',
+            willChange: 'transform, opacity',
           }}
         >
           {brideName}
@@ -243,8 +247,8 @@ function HeroSection({ isOpening, isOpened }) {
       {/* Lower Center Scroll Indicator Above Swans */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={isOpened ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.9, delay: 0.8, ease: LUXURY_EASE }}
+        animate={isRevealing ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1.2, delay: 2.85, ease: LUXURY_EASE }}
         style={{
           position: 'absolute',
           bottom: '26%',
@@ -254,6 +258,7 @@ function HeroSection({ isOpening, isOpened }) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          willChange: 'opacity',
         }}
       >
         <button
