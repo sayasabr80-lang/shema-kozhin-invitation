@@ -60,6 +60,6 @@ export const invitationData = {
     heroVideo: '',
     coupleImage: coupleIllustration,
     backgroundMusic: 'https://youtu.be/YlutQsV0WWs?si=uoQyljvjnPXuy3Ag',
-    backgroundMusicStartSeconds: 115,
+    backgroundMusicStartSeconds: 0,
   },
 }
